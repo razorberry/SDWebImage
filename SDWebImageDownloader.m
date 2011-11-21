@@ -111,6 +111,14 @@ NSString *const SDWebImageDownloadStopNotification = @"SDWebImageDownloadStopNot
     [imageData appendData:data];
 }
 
+- (void)connection:(NSURLConnection *)aConnection didReceiveResponse:(NSURLResponse *)response
+{
+    if ([delegate respondsToSelector:@selector(imageDownloader:didReceiveResponse:)])
+    {
+        [delegate performSelector:@selector(imageDownloader:didReceiveResponse:) withObject:self withObject:response];
+    }
+}
+
 #pragma GCC diagnostic ignored "-Wundeclared-selector"
 - (void)connectionDidFinishLoading:(NSURLConnection *)aConnection
 {

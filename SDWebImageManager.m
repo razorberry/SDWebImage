@@ -269,4 +269,14 @@ static SDWebImageManager *instance;
     [downloader release];
 }
 
+- (void)imageDownloader:(SDWebImageDownloader *)downloader didReceiveResponse:(NSURLResponse *)response
+{
+    if ([response expectedContentLength] > 10485760)
+    {
+        NSLog(@"Big image, cancelling");
+        [downloader cancel];
+        [self imageDownloader:downloader didFailWithError:[NSError errorWithDomain:@"Image too big" code:0 userInfo:nil]];
+    }
+}
+
 @end
