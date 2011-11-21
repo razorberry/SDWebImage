@@ -8,6 +8,7 @@
 
 #import "SDImageCache.h"
 #import "SDWebImageDecoder.h"
+#import "SDWebImageManager.h"
 #import <CommonCrypto/CommonDigest.h>
 
 #ifdef ENABLE_SDWEBIMAGE_DECODER
@@ -154,7 +155,9 @@ static SDImageCache *instance;
 
     if (image)
     {
-        [memCache setObject:image forKey:key];
+        if (!([[info objectForKey:@"options"] intValue] & SDWebImageCacheDiskOnly)) {
+            [memCache setObject:image forKey:key];
+        }
 
         if ([delegate respondsToSelector:@selector(imageCache:didFindImage:forKey:userInfo:)])
         {
@@ -193,15 +196,20 @@ static SDImageCache *instance;
 
 #pragma mark ImageCache
 
-- (void)storeImage:(UIImage *)image imageData:(NSData *)data forKey:(NSString *)key toDisk:(BOOL)toDisk
+- (void)storeImage:(UIImage *)image imageData:(NSData *)data forKey:(NSString *)key
+          toMemory:(BOOL)toMemory
+            toDisk:(BOOL)toDisk
 {
     if (!image || !key)
     {
         return;
     }
 
-    [memCache setObject:image forKey:key];
-
+    if (toMemory)
+    {
+        [memCache setObject:image forKey:key];
+    }
+    
     if (toDisk)
     {
         if (!data) return;
@@ -222,12 +230,12 @@ static SDImageCache *instance;
 
 - (void)storeImage:(UIImage *)image forKey:(NSString *)key
 {
-    [self storeImage:image imageData:nil forKey:key toDisk:YES];
+    [self storeImage:image imageData:nil forKey:key toMemory:YES toDisk:YES];
 }
 
-- (void)storeImage:(UIImage *)image forKey:(NSString *)key toDisk:(BOOL)toDisk
+- (void)storeImage:(UIImage *)image forKey:(NSString *)key toMemory:(BOOL)toMemory toDisk:(BOOL)toDisk
 {
-    [self storeImage:image imageData:nil forKey:key toDisk:toDisk];
+    [self storeImage:image imageData:nil forKey:key toMemory:toMemory toDisk:toDisk];
 }
 
 
